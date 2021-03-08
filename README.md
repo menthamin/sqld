@@ -1,6 +1,6 @@
 # sqld
 sqld study using oracle11g
-- 목적
+- 공부 목적
   - 1. Oracle Bulit-in 함수 숙지
   - 2. DB 정규화 개념 이해
 
