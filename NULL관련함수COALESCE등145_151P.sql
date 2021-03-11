@@ -1,0 +1,99 @@
+/* 공부 시작 */ 
+-- 144PAGE 날짜 +숫자 테스트
+SELECT TO_CHAR(SYSDATE + 3828.3,'YYYY-MM-DD hh24:mi:ss') FROM DUAL;
+SELECT SYSTIMESTAMP FROM DUAL;
+
+-- 145~ 146PAGE 명시적, 암시적 데이터 유형 변환 
+-- 명시적 데이터 유형 반환을 쓰는게 좋음
+-- 금액을 달러와 원화로 표시한다
+-- L는 로컬 화폐단위
+SELECT 
+    TO_CHAR(123456789/1200, '$999,999,999.00') 환율반영달러,
+    TO_CHAR(123456789/1.01, 'L999,999,999.00') 원화
+FROM DUAL;
+
+SELECT TEAM_ID, TO_NUMBER(ZIP_CODE1,'999') + TO_NUMBER(ZIP_CODE2,'999') FROM TEAM;
+
+-- 147PAGE CASE WHEN문
+SELECT 
+    LOC, 
+    CASE 
+        LOC WHEN 'NEWYORK' THEN 'EAST' 
+        WHEN 'BOSTON' THEN 'EAST'
+        WHEN 'CHICAGO' THEN 'CENTER'
+        WHEN 'DALLAS' THEN 'CENTER'
+        ELSE 'ETC'
+    END AS "AREA"
+    FROM DEPT;
+
+SELECT 
+    ENAME,
+    CASE 
+        WHEN SAL >= 3000 THEN 'HIGH'
+        WHEN SAL >= 1000 THEN 'MID'
+        ELSE 'LOW'
+    END AS "SALARY_GRADE"
+FROM EMP;
+
+SELECT
+    ENAME,
+    SAL,
+    CASE
+        WHEN SAL >= 2000 THEN 1000
+        ELSE 
+            (CASE 
+                WHEN SAL >= 1000 THEN 500
+                ELSE 0
+            END)
+    END AS "BONUS"
+FROM EMP;
+
+/* 148 PAGE NULL 관련 함수 */
+-- ORACLE 기준 NVL
+SELECT NULL +2 FROM DUAL;
+SELECT NVL(NULL, 'NVL-OK') NVL_TEST FROM DUAL;
+SELECT NVL('NOT-NULL', 'NVL-OK') NVL_TEST FROM DUAL;
+
+SELECT PLAYER_NAME 선수명, POSITION 포지션, NVL(POSITION, '없음') FROM PLAYER
+    WHERE  TEAM_ID = 'K08';
+--NVL 함수와 ISNULL 함수를 사용한 SQL문장은 벤도 공통적으로 CASE 문장으로 표현 가능
+SELECT 
+    PLAYER_NAME 선수명,
+    CASE
+        WHEN POSITION IS NULL THEN '없음'
+        ELSE POSITION
+    END AS 포지션
+FROM PLAYER
+    WHERE TEAM_ID ='K08';
+-- 급여와 커미션을 포함한 연봉을 계산하면서 NVL 함수의 필요성을 알아봄
+SELECT 
+    ENAME 사원명, SAL 월급, COMM 커미션,
+    (SAL * 12) + COMM 연봉A,
+    (SAL * 12) + NVL(COMM, 0) 연봉B
+FROM EMP;
+
+-- NULL과 공집합
+SELECT MGR FROM EMP WHERE ENAME ='SCOTT';
+SELECT EMP.*,  MGR FROM EMP WHERE ENAME='KING';
+
+SELECT 1 FROM DUAL WHERE 1 = 2;
+SELECT * FROM DUAL;
+SELECT * FROM DUAL WHERE DUMMY = 'XXXX';
+SELECT NVL(MGR, 9999) FROM EMP WHERE ENAME = 'JSC';
+SELECT * FROM EMP WHERE ENAME = 'JSC';
+-- 집계함수와 SCALAR SUBQUERY는 인수의 결과가 공집한인 경우에도 NULL 출력
+SELECT MAX(MGR) FROM EMP WHERE ENAME='JSC';
+SELECT NVL(MAX(MGR), 9999) FROM EMP WHERE ENAME='JSC';
+
+-- NULLIF (EXPR1, EXPR2) 2개 식이 같으면 NULL 출력
+SELECT ENAME, EMPNO, MGR, NULLIF(MGR, 7698) NULLIF_TEST FROM EMP;
+
+-- 기타 NULL 관련 함수 (COALESCE)
+/* 구문 - COALESCE(expression1, …n)
+지정한 표현식들 중에 NULL이 아니 첫 번째 값을 반환합니다. 즉 ISNULL()과 친척 관계입니다. 
+다중 ISNULL() 개념을 적용하고 싶을 때 이를 축약해서 사용할 수 있는 함수인 셈이죠.
+온라인 설명서에는 이 함수가 다음과 같은 식이라고 소개합니다.
+*/
+SELECT ENAME, COMM, SAL, COALESCE(COMM, SAL) COAL FROM EMP;
+
+-- 152PAGE GROUP BY, HAVING 절
